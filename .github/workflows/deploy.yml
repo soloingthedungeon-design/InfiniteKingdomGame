@@ -1,4 +1,4 @@
-name: Build and Deploy (Landing + Game)
+name: Build and Deploy Site
 
 on:
   push:
@@ -23,29 +23,25 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: 20
+          cache: npm
 
-      - name: Install
+      - name: Install dependencies
+        working-directory: game
         run: npm ci
 
-      - name: Build game
+      - name: Build React app
+        working-directory: game
         run: npm run build
 
-      # Assemble a single deploy folder:
-      # - root landing page + credits from repo root
-      # - game build output inside /game
       - name: Assemble site
         run: |
-          rm -rf _site
           mkdir -p _site/game
           cp index.html _site/index.html
           cp credits.html _site/credits.html
+          cp -r game/dist/* _site/game/
 
-          # Vite outputs dist/ by default. If yours outputs build/, change dist -> build below.
-          cp -R dist/* _site/game/
-
-      - name: Upload artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
@@ -56,5 +52,5 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
