@@ -24,19 +24,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-    
 
-      - name: Install dependencies
+      # Debug: show repo layout so we can confirm /game exists
+      - name: Debug - list repo files
+        run: |
+          pwd
+          ls -la
+          echo "---- game folder ----"
+          ls -la game || true
+          echo "---- game/package.json ----"
+          cat game/package.json || true
+
+      - name: Install dependencies (game)
         working-directory: game
         run: npm install
-      
 
-      - name: Build React app
+      - name: Build React app (game)
         working-directory: game
         run: npm run build
 
+      # Debug: show build output exists
+      - name: Debug - list dist
+        run: |
+          echo "---- game/dist ----"
+          ls -la game/dist || true
+
       - name: Assemble site
         run: |
+          rm -rf _site
           mkdir -p _site/game
           cp index.html _site/index.html
           cp credits.html _site/credits.html
